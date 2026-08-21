@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <!-- Allows building Windows-targeted projects on non-Windows dev machines.
+         Real builds/tests/releases still run on GitHub-hosted Windows runners. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+  </PropertyGroup>
+</Project>

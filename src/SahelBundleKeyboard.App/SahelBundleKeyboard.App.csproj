@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>SahelBundleKeyboard.App</RootNamespace>
+    <AssemblyName>SahelBundleKeyboard</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <!-- Portable app: data lives in a Data folder beside the EXE. -->
+    <SelfContained Condition="'$(SelfContained)' == ''">false</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SahelBundleKeyboard.Core\SahelBundleKeyboard.Core.csproj" />
+    <ProjectReference Include="..\SahelBundleKeyboard.Infrastructure\SahelBundleKeyboard.Infrastructure.csproj" />
+    <ProjectReference Include="..\SahelBundleKeyboard.Windows\SahelBundleKeyboard.Windows.csproj" />
+  </ItemGroup>
+
+</Project>

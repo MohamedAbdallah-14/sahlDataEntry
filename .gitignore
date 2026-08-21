@@ -1,0 +1,24 @@
+# Build artifacts
+bin/
+obj/
+art/
+artifacts/
+publish/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Test results
+TestResults/
+*.trx
+
+# Runtime data created by the app beside the EXE (kept out of repo)
+Data/
+logs/
+
+# macOS
+.DS_Store
