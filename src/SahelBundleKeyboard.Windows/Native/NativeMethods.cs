@@ -56,7 +56,7 @@ internal static class NativeMethods
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
-    [DllImport("user32.dll", SetLastError = true)]
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern IntPtr CreateWindowExW(
         uint dwExStyle,
         string lpClassName,
@@ -74,7 +74,7 @@ internal static class NativeMethods
     [DllImport("user32.dll", SetLastError = true)]
     public static extern ushort RegisterClassW(ref WNDCLASS lpWndClass);
 
-    [DllImport("user32.dll", SetLastError = true)]
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern bool UnregisterClassW(string lpClassName, IntPtr hInstance);
 
     [DllImport("user32.dll")]

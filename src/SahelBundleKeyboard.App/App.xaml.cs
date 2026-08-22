@@ -49,8 +49,19 @@ public partial class App : Application
             new TaskDelayService(),
             _logger);
 
-        _hotkeys = new GlobalHotkeyManager();
-        _hotkeys.HotkeyPressed += OnGlobalHotkeyPressed;
+        try
+        {
+            _hotkeys = new GlobalHotkeyManager();
+            _hotkeys.HotkeyPressed += OnGlobalHotkeyPressed;
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            _logger.Error(LogSource, "Hotkey window creation failed; continuing without global shortcuts.", ex);
+            UiText.ShowError(
+                "تعذر تهيئة الاختصارات العامة على هذا النظام.\n" +
+                "يمكنك متابعة الاستخدام من أزرار النافذة أو وحدة التحكم العائمة.\nالتفاصيل: " + ex.Message);
+            _hotkeys = null;
+        }
 
         _mainViewModel = new MainViewModel(
             _dataService,
@@ -122,6 +133,7 @@ public partial class App : Application
         {
             return;
         }
+
 
         var s = _dataService.Document.Settings;
 
