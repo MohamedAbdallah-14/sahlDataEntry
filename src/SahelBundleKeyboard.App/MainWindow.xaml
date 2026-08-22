@@ -116,8 +116,6 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="ابدأ" Command="{Binding StartCommand}"
                                             Style="{StaticResource PrimaryButton}" MinWidth="110"/>
-                                    <Button Content="{Binding PauseResumeLabel}" Command="{Binding PauseResumeCommand}"
-                                            Style="{StaticResource NeutralButton}" MinWidth="100" Margin="8,0,0,0"/>
                                     <Button Content="إيقاف نهائي" Command="{Binding StopCommand}"
                                             Style="{StaticResource WarnButton}" MinWidth="100" Margin="8,0,0,0"/>
                                 </StackPanel>

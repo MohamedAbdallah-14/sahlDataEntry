@@ -36,7 +36,6 @@ public sealed class SettingsViewModel : ObservableObject
         _delayText = settings.DelayMilliseconds.ToString();
         _countdownIndex = settings.CountdownSeconds; // 0..3 maps directly to combo index
         StartShortcut = settings.StartShortcut;
-        PauseResumeShortcut = settings.PauseResumeShortcut;
         StopShortcut = settings.StopShortcut;
 
         ExportBackupCommand = new RelayCommand(ExportBackup);
@@ -92,18 +91,6 @@ public sealed class SettingsViewModel : ObservableObject
         }
     } = string.Empty;
 
-    public string PauseResumeShortcut
-    {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value) && field.Length > 0)
-            {
-                UpdateShortcut(s => s.PauseResumeShortcut = field);
-            }
-        }
-    } = string.Empty;
-
     public string StopShortcut
     {
         get;
@@ -129,7 +116,6 @@ public sealed class SettingsViewModel : ObservableObject
     private void UpdateShortcut(Action<SahelBundleKeyboard.Core.Models.AppSettings> apply)
     {
         var previousStart = _data.Document.Settings.StartShortcut;
-        var previousPause = _data.Document.Settings.PauseResumeShortcut;
         var previousStop = _data.Document.Settings.StopShortcut;
 
         apply(_data.Document.Settings);
@@ -140,11 +126,9 @@ public sealed class SettingsViewModel : ObservableObject
             UiText.ShowError(validation.ToAggregatedMessage());
             // Keep the last valid configuration.
             _data.Document.Settings.StartShortcut = previousStart;
-            _data.Document.Settings.PauseResumeShortcut = previousPause;
             _data.Document.Settings.StopShortcut = previousStop;
 
             StartShortcut = previousStart;
-            PauseResumeShortcut = previousPause;
             StopShortcut = previousStop;
             return;
         }
@@ -207,7 +191,7 @@ public sealed class SettingsViewModel : ObservableObject
             $"الأصناف: {preview.ItemCount}\n" +
             $"التأخير: {preview.DelayMilliseconds} مللي ثانية\n" +
             $"العد التنازلي: {preview.CountdownSeconds} ثانية/ثوان\n" +
-            $"الاختصارات: {preview.StartShortcut} / {preview.PauseResumeShortcut} / {preview.StopShortcut}\n\n" +
+            $"الاختصارات: {preview.StartShortcut} / {preview.StopShortcut}\n\n" +
             "سيتم استبدال جميع البيانات الحالية (مع إنشاء نسخة أمان تلقائية). هل تريد المتابعة؟";
 
         if (!UiText.Confirm(summary))
@@ -223,7 +207,6 @@ public sealed class SettingsViewModel : ObservableObject
             DelayText = imported.Settings.DelayMilliseconds.ToString();
             CountdownIndex = imported.Settings.CountdownSeconds;
             StartShortcut = imported.Settings.StartShortcut;
-            PauseResumeShortcut = imported.Settings.PauseResumeShortcut;
             StopShortcut = imported.Settings.StopShortcut;
 
             _reapplyShortcutsAndReport();
@@ -247,7 +230,6 @@ public sealed class SettingsViewModel : ObservableObject
         DelayText = settings.DelayMilliseconds.ToString();
         CountdownIndex = settings.CountdownSeconds;
         StartShortcut = settings.StartShortcut;
-        PauseResumeShortcut = settings.PauseResumeShortcut;
         StopShortcut = settings.StopShortcut;
     }
 }

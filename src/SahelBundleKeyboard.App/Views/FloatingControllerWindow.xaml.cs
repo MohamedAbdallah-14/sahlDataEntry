@@ -22,6 +22,7 @@ public sealed partial class FloatingControllerWindow : Window
     public FloatingControllerWindow(MainViewModel viewModel)
     {
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+        DataContext = _viewModel;
         InitializeComponent();
 
         AllowsTransparency = true;
@@ -42,7 +43,6 @@ public sealed partial class FloatingControllerWindow : Window
             }
             else if (e.PropertyName is nameof(MainViewModel.StateText))
             {
-                PauseButton.Content = viewModel.PauseResumeLabel;
                 GoButton.IsEnabled = !viewModel.IsBusy;
                 if (viewModel.State != AutomationState.Countdown)
                 {
@@ -105,8 +105,6 @@ public sealed partial class FloatingControllerWindow : Window
     }
 
     private void OnGoClick(object sender, RoutedEventArgs e) => _viewModel.Start();
-
-    private void OnPauseResumeClick(object sender, RoutedEventArgs e) => _viewModel.PauseResume();
 
     private void OnStopClick(object sender, RoutedEventArgs e) => _viewModel.Stop();
 }

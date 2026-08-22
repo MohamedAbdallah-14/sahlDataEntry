@@ -42,6 +42,14 @@ First functional release.
   Arabic quick-start README and Data placeholder, ZIP + SHA256 artifacts.
 - Release workflow for `v*` tags and manual dispatch with idempotent reruns via GitHub CLI.
 
+### Changed
+
+- Pause/Resume removed from the UI and global shortcuts per operator feedback:
+  Start (Ctrl+Alt+G) and Stop (Ctrl+Alt+S) only. The engine keeps its tested
+  pause capability internally; old data files load unchanged (unknown field ignored).
+- Floating controller: live bundle dropdown, bundle-count +/- buttons, hide button
+  (DataContext binding fix — dropdown was previously empty).
+
 ### Fixed
 
 - Startup crash #2: `ProgressBar.Value` (TwoWay by default) bound to read-only

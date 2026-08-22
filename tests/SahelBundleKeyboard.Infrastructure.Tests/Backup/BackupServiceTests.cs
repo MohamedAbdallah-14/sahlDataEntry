@@ -34,6 +34,7 @@ public class BackupServiceTests
         Assert.Equal(1, preview.ItemCount);
         Assert.Equal(document.Settings.DelayMilliseconds, preview.DelayMilliseconds);
         Assert.Equal("Ctrl+Alt+G", preview.StartShortcut);
+        Assert.Equal("Ctrl+Alt+S", preview.StopShortcut);
     }
 
     [Fact]
@@ -104,7 +105,7 @@ public class BackupServiceTests
             Bundles = [new Bundle { Name = "مستوردة" }],
             Settings = new AppSettings()
         };
-        var preview = new BackupPreview(otherDoc, 1, 0, 120, 2, "Ctrl+Alt+G", "Ctrl+Alt+P", "Ctrl+Alt+S");
+        var preview = new BackupPreview(otherDoc, 1, 0, 120, 2, "Ctrl+Alt+G", "Ctrl+Alt+S");
 
         var imported = backup.ApplyImport(preview);
         store.Save(imported);

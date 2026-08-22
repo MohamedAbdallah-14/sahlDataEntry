@@ -24,13 +24,11 @@ public static class SettingsValidator
         }
 
         ValidateShortcut(settings.StartShortcut, "Start", "بدء التشغيل", result);
-        ValidateShortcut(settings.PauseResumeShortcut, "PauseResume", "إيقاف مؤقت/استئناف", result);
         ValidateShortcut(settings.StopShortcut, "Stop", "إيقاف نهائي", result);
 
         var parsed = new[]
         {
             (Name: "Start", ArabicName: "بدء التشغيل", Combo: HotkeyParser.TryParse(settings.StartShortcut)),
-            (Name: "PauseResume", ArabicName: "إيقاف مؤقت/استئناف", Combo: HotkeyParser.TryParse(settings.PauseResumeShortcut)),
             (Name: "Stop", ArabicName: "إيقاف نهائي", Combo: HotkeyParser.TryParse(settings.StopShortcut))
         };
 

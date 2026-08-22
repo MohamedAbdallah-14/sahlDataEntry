@@ -18,8 +18,6 @@ public sealed class MainViewModel : ObservableObject
 {
     private readonly AppDataService _data;
     private readonly Func<RunRequest, Task<StartRunResult>> _startEngine;
-    private readonly Action _pauseEngine;
-    private readonly Action _resumeEngine;
     private readonly Action _stopEngine;
     private readonly Action<string> _showStatus;
 
@@ -36,15 +34,11 @@ public sealed class MainViewModel : ObservableObject
     public MainViewModel(
         AppDataService data,
         Func<RunRequest, Task<StartRunResult>> startEngine,
-        Action pauseEngine,
-        Action resumeEngine,
         Action stopEngine,
         Action<string> showStatus)
     {
         _data = data ?? throw new ArgumentNullException(nameof(data));
         _startEngine = startEngine ?? throw new ArgumentNullException(nameof(startEngine));
-        _pauseEngine = pauseEngine;
-        _resumeEngine = resumeEngine;
         _stopEngine = stopEngine;
         _showStatus = showStatus ?? throw new ArgumentNullException(nameof(showStatus));
 
@@ -60,7 +54,6 @@ public sealed class MainViewModel : ObservableObject
         BundleCountText = Math.Max(1, data.Document.Settings.LastBundleCount).ToString();
 
         StartCommand = new RelayCommand(Start, () => State is not (AutomationState.Countdown or AutomationState.Running or AutomationState.Paused));
-        PauseResumeCommand = new RelayCommand(PauseResume, () => State is AutomationState.Running or AutomationState.Paused);
         StopCommand = new RelayCommand(Stop, () => State is AutomationState.Countdown or AutomationState.Running or AutomationState.Paused);
         ToggleControllerCommand = new RelayCommand(ToggleController);
     }
@@ -171,9 +164,7 @@ public sealed class MainViewModel : ObservableObject
             {
                 StateText = UiText.StateName(value);
                 ((RelayCommand)StartCommand).RaiseCanExecuteChanged();
-                ((RelayCommand)PauseResumeCommand).RaiseCanExecuteChanged();
                 ((RelayCommand)StopCommand).RaiseCanExecuteChanged();
-                OnPropertyChanged(nameof(PauseResumeLabel));
                 OnPropertyChanged(nameof(IsBusy));
                 OnPropertyChanged(nameof(ControllerStateBadge));
             }
@@ -181,8 +172,6 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public bool IsBusy => State is AutomationState.Countdown or AutomationState.Running or AutomationState.Paused;
-
-    public string PauseResumeLabel => State == AutomationState.Paused ? "استئناف" : "إيقاف مؤقت";
 
     public string StatusMessage
     {
@@ -240,7 +229,6 @@ public sealed class MainViewModel : ObservableObject
     public string ControllerStateBadge => StateText;
 
     public RelayCommand StartCommand { get; }
-    public RelayCommand PauseResumeCommand { get; }
     public RelayCommand StopCommand { get; }
     public RelayCommand ToggleControllerCommand { get; }
 
@@ -345,18 +333,6 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
-    public void PauseResume()
-    {
-        if (State == AutomationState.Running)
-        {
-            _pauseEngine();
-        }
-        else if (State == AutomationState.Paused)
-        {
-            _resumeEngine();
-        }
-    }
-
     public void Stop() => _stopEngine();
 
     // ---- Engine callbacks (invoked on the dispatcher thread by the composition root) ----
@@ -384,9 +360,6 @@ public sealed class MainViewModel : ObservableObject
         {
             case "Start":
                 Start();
-                break;
-            case "PauseResume":
-                PauseResume();
                 break;
             case "Stop":
                 Stop();

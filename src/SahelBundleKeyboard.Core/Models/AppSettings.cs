@@ -21,7 +21,6 @@ public sealed class AppSettings
     public int CountdownSeconds { get; set; } = DefaultCountdownSeconds;
 
     public string StartShortcut { get; set; } = "Ctrl+Alt+G";
-    public string PauseResumeShortcut { get; set; } = "Ctrl+Alt+P";
     public string StopShortcut { get; set; } = "Ctrl+Alt+S";
 
     /// <summary>Last selected bundle id (persisted when practical).</summary>
