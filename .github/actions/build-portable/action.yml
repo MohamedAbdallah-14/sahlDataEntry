@@ -64,7 +64,9 @@ runs:
         [System.IO.File]::WriteAllText("portable/README.txt", $readme, (New-Object System.Text.UTF8Encoding($true)))
 
         # Data folder placeholder so the structure is obvious; runtime creates real files.
-        [System.IO.File]::WriteAllText("portable/Data/ضع-ملفات-البيانات-هنا.txt",
+        # ASCII entry name: Compress-Archive does not mark UTF-8 entry names,
+        # which garbles Arabic filenames on extraction. Arabic text lives INSIDE the file.
+        [System.IO.File]::WriteAllText("portable/Data/data-json-created-here.txt",
           "سيتم إنشاء ملف data.json تلقائياً هنا عند أول تشغيل.",
           (New-Object System.Text.UTF8Encoding($true)))
 
