@@ -98,6 +98,80 @@ public class RowMapperTests
         Assert.Equal(2, result.ValidCount);
     }
 
+    [Theory]
+    [InlineData("اسم الصنف,كمية,السعر", "دولاب بقاعدة,1,1500", 1)]          // priceoffer layout
+    [InlineData("رقم الصنف,اسم الصنف,الوحدة,الكمية", "75,كارت فاز,,1", 1)]   // transfer layout: no price col
+    [InlineData("رقم الصنف,اسم الصنف,الوحدة,الكمية,السعر,الإجمالى", "327,مسامير تثبيت ابيض,,16848,0.1697,2859.1", 0.1697)] // buy layout
+    public void SahelExportHeaders_AreRecognized(string header, string dataRow, double expectedPrice)
+    {
+        var csv = header + "\n" + dataRow + "\n";
+        var result = RowMapper.FromGridRows(CsvParser.Parse(csv));
+
+        Assert.False(result.FileLevelError, result.FileError);
+        Assert.Equal(1, result.ValidCount);
+
+        var item = RowMapper.ToItems(result.Rows.Where(r => r.IsValid).ToList())[0];
+        if (expectedPrice == 1 && !dataRow.Contains(",") == false)
+        {
+            // transfer variant has no price column at all
+        }
+
+        Assert.True(item.BaseQuantity > 0);
+    }
+
+    [Fact]
+    public void TransferLayout_WithoutPriceColumn_ImportsNullPrices()
+    {
+        var csv = "رقم الصنف,اسم الصنف,الوحدة,الكمية\n75,كارت فاز,,1\n";
+        var result = RowMapper.FromGridRows(CsvParser.Parse(csv));
+
+        Assert.False(result.FileLevelError, result.FileError);
+        var item = RowMapper.ToItems(result.Rows.Where(r => r.IsValid).ToList()).Single();
+        Assert.Null(item.CustomPrice);
+        Assert.Equal("كارت فاز", item.ProductName);
+        Assert.Equal("75", item.ProductCode);
+        Assert.Equal(1m, item.BaseQuantity);
+    }
+
+    [Fact]
+    public void BuyLayout_MapsAllSahelColumns_IgnoringTotalsAndUnits()
+    {
+        var csv = "الإجمالى,السعر,الكمية,الوحدة,اسم الصنف,رقم الصنف\n" +
+                  "2859.1056,0.1697,16848,,مسامير تثبيت ابيض,327\n";
+        var result = RowMapper.FromGridRows(CsvParser.Parse(csv));
+
+        Assert.False(result.FileLevelError, result.FileError);
+        var item = RowMapper.ToItems(result.Rows.Where(r => r.IsValid).ToList()).Single();
+        Assert.Equal("327", item.ProductCode);
+        Assert.Equal("مسامير تثبيت ابيض", item.ProductName);
+        Assert.Equal(16848m, item.BaseQuantity);
+        Assert.Equal(0.1697m, item.CustomPrice);
+    }
+
+    [Fact]
+    public void TitleAndMetaRowsAboveHeader_AreSkipped_LikeRealSahelExports()
+    {
+        var csv =
+            "اسم المشروع\n" +
+            "عرض أسعار\n" +
+            "46239,التاريخ,,3,رقم الفاتورة\n" +
+            "0.75021,الوقت,,مدير النظام,كاشير\n" +
+            "\n" +
+            "الإجمالى,السعر,كمية,اسم الصنف\n" +
+            "1500,1500,1,دولاب بقاعدة\n" +
+            "282.7,0.55,514,ترنش ابيض\n";
+
+        var result = RowMapper.FromGridRows(CsvParser.Parse(csv));
+
+        Assert.False(result.FileLevelError, result.FileError);
+        Assert.Equal(2, result.ValidCount);
+
+        var items = RowMapper.ToItems(result.Rows.Where(r => r.IsValid).ToList());
+        Assert.Equal("دولاب بقاعدة", items[0].ProductName);
+        Assert.Equal(1m, items[0].BaseQuantity);
+        Assert.Equal(1500m, items[0].CustomPrice);
+    }
+
     [Fact]
     public void ArabicIndicDigits_InQuantities_AreAccepted()
     {

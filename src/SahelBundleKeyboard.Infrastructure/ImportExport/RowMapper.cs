@@ -26,19 +26,21 @@ public static class RowMapper
     private static readonly string[] CodeHeaders =
     [
         "product code", "code", "barcode", "sku",
-        "كود المنتج (اختياري)", "كود المنتج", "الكود", "الباركود", "باركود", "رمز المنتج"
+        "كود المنتج (اختياري)", "كود المنتج", "الكود", "الباركود", "باركود", "رمز المنتج",
+        "رقم الصنف" // Sahel exports (buy/transfer)
     ];
 
     private static readonly string[] NameHeaders =
     [
         "product name", "name", "product",
-        "اسم المنتج (إجباري)", "اسم المنتج", "الاسم", "المنتج"
+        "اسم المنتج (إجباري)", "اسم المنتج", "الاسم", "المنتج",
+        "اسم الصنف" // Sahel exports
     ];
 
     private static readonly string[] QuantityHeaders =
     [
         "quantity", "qty",
-        "الكمية (إجباري)", "الكمية"
+        "الكمية (إجباري)", "الكمية", "كمية" // Sahel priceoffer uses bare كمية
     ];
 
     private static readonly string[] PriceHeaders =
@@ -47,14 +49,26 @@ public static class RowMapper
         "السعر المخصص (اختياري)", "السعر المخصص", "السعر", "السعر للوحدة"
     ];
 
-    public static ImportParseResult FromGridRows(IReadOnlyList<IReadOnlyList<string>> gridRows, int startLineNumber = 2)
+    /// <summary>Max rows scanned to locate the real header (Sahel exports carry title/meta rows first).</summary>
+    private const int HeaderSearchDepth = 30;
+
+    public static ImportParseResult FromGridRows(IReadOnlyList<IReadOnlyList<string>> gridRows)
     {
-        if (gridRows.Count == 0 || IsEffectivelyEmpty(gridRows[0]))
+        if (gridRows.Count == 0 || gridRows.All(IsEffectivelyEmpty))
         {
             return ImportParseResult.Fail("الملف فارغ أو لا يحتوي صفوفاً.");
         }
 
-        var header = gridRows[0].Select(NormalizeHeader).ToList();
+        // Real-world exports (e.g. Sahel priceoffer/buy/transfer) put titles, dates and
+        // invoice metadata above the table. Scan for the first row that looks like a header.
+        var headerRowIndex = FindHeaderRow(gridRows);
+        if (headerRowIndex < 0)
+        {
+            return ImportParseResult.Fail(
+                "لم يتم التعرف على صف عناوين الأعمدة. استخدم القالب المُصدَّر من البرنامج أو أسماء مثل: اسم الصنف، الكمية، السعر.");
+        }
+
+        var header = gridRows[headerRowIndex].Select(NormalizeHeader).ToList();
 
         var codeIdx = FindHeader(header, CodeHeaders);
         var nameIdx = FindHeader(header, NameHeaders);
@@ -64,15 +78,15 @@ public static class RowMapper
         if (nameIdx < 0 || qtyIdx < 0)
         {
             return ImportParseResult.Fail(
-                "لم يتم التعرف على عناوين الأعمدة. استخدم القالب المُصدَّر من البرنامج أو استخدم أسماء الأعمدة القياسية.");
+                "لم يتم التعرف على عناوين الأعمدة. استخدم القالب المُصدَّر من البرنامج أو أسماء مثل: اسم الصنف، الكمية، السعر.");
         }
 
         var rows = new List<ParsedRow>();
 
-        for (var r = 1; r < gridRows.Count; r++)
+        for (var r = headerRowIndex + 1; r < gridRows.Count; r++)
         {
             var cells = gridRows[r];
-            var lineNumber = startLineNumber + r - 1;
+            var lineNumber = r + 1; // one-based spreadsheet/line number for user-facing errors
 
             // Skip fully empty lines silently.
             if (IsEffectivelyEmpty(cells))
@@ -159,6 +173,38 @@ public static class RowMapper
         }
 
         return items;
+    }
+
+    /// <summary>
+    /// Finds the first row containing at least two recognized header names,
+    /// including a product-name or quantity column. Returns its index or -1.
+    /// </summary>
+    internal static int FindHeaderRow(IReadOnlyList<IReadOnlyList<string>> gridRows)
+    {
+        var depth = Math.Min(gridRows.Count, HeaderSearchDepth);
+
+        for (var i = 0; i < depth; i++)
+        {
+            if (IsEffectivelyEmpty(gridRows[i]))
+            {
+                continue;
+            }
+
+            var normalized = gridRows[i].Select(NormalizeHeader).ToList();
+
+            var hasName = normalized.Any(c => NameHeaders.Contains(c));
+            var hasQty = normalized.Any(c => QuantityHeaders.Contains(c));
+            var totalMatches = normalized.Count(c =>
+                CodeHeaders.Contains(c) || NameHeaders.Contains(c) ||
+                QuantityHeaders.Contains(c) || PriceHeaders.Contains(c));
+
+            if ((hasName || hasQty) && totalMatches >= 2)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private static int FindHeader(List<string> headerCells, string[] candidates)
