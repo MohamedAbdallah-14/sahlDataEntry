@@ -99,12 +99,13 @@ public class AutomationEngineTests
 
         await RunToCompletionAsync(engine, delays);
 
+        // Search text, Enter, qty, Enter, price, then 5 confirmation Enters.
         Assert.Equal(
         [
-            "T:CODE1", "E", "T:6", "E", "T:9.75", "E"
+            "T:CODE1", "E", "T:6", "E", "T:9.75", "E", "E", "E", "E", "E"
         ], sender.Calls);
         Assert.Equal(AutomationState.Completed, engine.State);
-        Assert.Equal([50, 50, 50], delays.RequestedDelays);
+        Assert.Equal([50, 50, 50, 50, 50, 50, 50], delays.RequestedDelays);
     }
 
     [Fact]
@@ -118,8 +119,8 @@ public class AutomationEngineTests
         await RunToCompletionAsync(engine, delays);
 
         Assert.Equal(AutomationState.Completed, engine.State);
-        // Two items -> 6 wait actions of 10ms; no extra countdown waits.
-        Assert.Equal(6, delays.RequestedDelays.Count(d => d == 10));
+        // Two items -> (2 + 5 confirmation) wait actions each; no countdown waits.
+        Assert.Equal(14, delays.RequestedDelays.Count(d => d == 10));
     }
 
     [Fact]
@@ -169,8 +170,16 @@ public class AutomationEngineTests
 
         await RunToCompletionAsync(engine, delays);
 
-        // Full expected sequence with no duplicated or skipped action.
-        var expected = new[] { "T:منتج1", "E", "T:1", "E", "E", "T:منتج2", "E", "T:1", "E", "T:5.5", "E" };
+        // Full expected sequence with no duplicated or skipped action
+        // (7 Enters per item without price: search+qty+price-confirm+5 confirmations;
+        //  item2 adds its typed custom price).
+        var expected = new[]
+        {
+            // item without price: search + qty texts and 7 Enters (price-confirm + 5 confirmations)
+            "T:منتج1", "E", "T:1", "E", "E", "E", "E", "E", "E",
+            // item with price 5.5 typed between qty-Enter and the confirmation block
+            "T:منتج2", "E", "T:1", "E", "T:5.5", "E", "E", "E", "E", "E"
+        };
         Assert.Equal(expected, sender.Calls);
         Assert.Equal(AutomationState.Completed, engine.State);
     }

@@ -45,7 +45,9 @@ For count = 2 expect typed quantities: `5`, `2`, `0.5`, `6`.
 - [ ] Select the bundle, count = 1, press the global Start shortcut `Ctrl+Alt+G`.
 - [ ] After the countdown, Notepad receives exactly:
       `6290100000001 ⏎ 2.5 ⏎ 45 ⏎` then `أرز أبو كاس ٥ كيلو ⏎ 1 ⏎ ⏎` etc.
-- [ ] Items with no custom price show **two** consecutive Enters (price skipped, default kept).
+- [ ] Items with no custom price show a bare Enter where the price would go,
+      followed by **five** confirmation Enters (blank lines in Notepad) that dismiss
+      any intermittent Sahel popup before the next product.
 - [ ] Verify dot decimal separator always (never `2,5`).
 
 ## 5. Floating Go button does not steal focus

@@ -45,8 +45,8 @@ For every bundle item, in saved order (`SequenceBuilder.Build`):
 | 5 | Enter | Sahel moves to price field |
 | 6 | Wait global delay | |
 | 7 | If custom price exists: type it | otherwise type nothing (Sahel keeps its default price) |
-| 8 | Enter | next product-search field |
-| 9 | Wait global delay | |
+| 8 | Enter | confirms price / moves on |
+| 9 | 5 × (Enter, wait global delay) | confirmation presses dismiss any intermittent Sahel popup before the next product |
 
 The sequence is a deterministic list of `InputAction` records (`TypeTextAction`,
 `PressEnterAction`, `WaitAction`); the engine merely walks it.

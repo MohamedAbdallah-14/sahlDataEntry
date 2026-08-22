@@ -43,6 +43,14 @@ public class SequenceBuilderTests
             new PressEnterAction { ItemIndex = 0 },
             new WaitAction(150) { ItemIndex = 0 },
             new PressEnterAction { ItemIndex = 0 },
+            new WaitAction(150) { ItemIndex = 0 },
+            new PressEnterAction { ItemIndex = 0 },
+            new WaitAction(150) { ItemIndex = 0 },
+            new PressEnterAction { ItemIndex = 0 },
+            new WaitAction(150) { ItemIndex = 0 },
+            new PressEnterAction { ItemIndex = 0 },
+            new WaitAction(150) { ItemIndex = 0 },
+            new PressEnterAction { ItemIndex = 0 },
             new WaitAction(150) { ItemIndex = 0 }
         };
 
@@ -107,11 +115,26 @@ public class SequenceBuilderTests
     {
         var actions = BuildOneItem(Item("أرز", 2));
         var enters = actions.OfType<PressEnterAction>().Count();
-        Assert.Equal(3, enters);
+        Assert.Equal(7, enters);
         Assert.Equal(2, actions.OfType<TypeTextAction>().Count());
-        // The third Enter (price confirm) is present even with no typed price.
+        // The final confirmation sequence is present even with no typed price.
         Assert.IsType<PressEnterAction>(actions[^2]);
         Assert.IsType<WaitAction>(actions[^1]);
+    }
+
+    [Fact]
+    public void FinalConfirmation_PressesEnterFiveTimes_WithDelayAfterEachPress()
+    {
+        var actions = BuildOneItem(Item("أرز", 2), delay: 75);
+        var finalActions = actions.Skip(6).ToArray();
+
+        Assert.Equal(10, finalActions.Length);
+        for (var i = 0; i < finalActions.Length; i += 2)
+        {
+            Assert.IsType<PressEnterAction>(finalActions[i]);
+            var wait = Assert.IsType<WaitAction>(finalActions[i + 1]);
+            Assert.Equal(75, wait.DelayMilliseconds);
+        }
     }
 
     [Fact]
@@ -129,9 +152,9 @@ public class SequenceBuilderTests
         var searches = texts.Where((_, idx) => idx % 2 == 0).ToList();
 
         Assert.Equal(new[] { "الأول", "الثاني", "الأول" }, searches);
-        Assert.All(actions.Take(8), a => Assert.Equal(0, a.ItemIndex));
-        Assert.All(actions.Skip(8).Take(8), a => Assert.Equal(1, a.ItemIndex));
-        Assert.All(actions.Skip(16), a => Assert.Equal(2, a.ItemIndex));
+        Assert.All(actions.Take(16), a => Assert.Equal(0, a.ItemIndex));
+        Assert.All(actions.Skip(16).Take(16), a => Assert.Equal(1, a.ItemIndex));
+        Assert.All(actions.Skip(32), a => Assert.Equal(2, a.ItemIndex));
     }
 
     [Fact]
@@ -143,7 +166,7 @@ public class SequenceBuilderTests
 
         var actions = SequenceBuilder.Build(bundle, 1, 0);
         Assert.Equal("أولاً", Assert.IsType<TypeTextAction>(actions[0]).Text);
-        Assert.Equal("ثانياً", Assert.IsType<TypeTextAction>(actions[8]).Text);
+        Assert.Equal("ثانياً", Assert.IsType<TypeTextAction>(actions[16]).Text);
     }
 
     [Fact]

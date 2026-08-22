@@ -13,8 +13,8 @@ namespace SahelBundleKeyboard.Core.Sequencing;
 ///   5. Enter (Sahel moves to price)
 ///   6. wait delay
 ///   7. type custom price only when present (otherwise nothing; Sahel keeps default price)
-///   8. Enter (Sahel moves to next product search field)
-///   9. wait delay
+///   8. Enter five times, waiting after each press (confirms the item and dismisses
+///      any intermittent popup before the next product)
 /// </summary>
 public static class SequenceBuilder
 {
@@ -68,11 +68,13 @@ public static class SequenceBuilder
                 actions.Add(new TypeTextAction(QuantityFormatter.Format(item.CustomPrice.Value)) { ItemIndex = index });
             }
 
-            // 9. Enter -> next product search field.
-            actions.Add(new PressEnterAction { ItemIndex = index });
-
-            // 10. global delay before the next item.
-            actions.Add(new WaitAction(delayMilliseconds) { ItemIndex = index });
+            // Confirm the item and dismiss any intermittent Sahel popup. Waiting after
+            // every press gives a popup time to appear before the next Enter is sent.
+            for (var confirmation = 0; confirmation < 5; confirmation++)
+            {
+                actions.Add(new PressEnterAction { ItemIndex = index });
+                actions.Add(new WaitAction(delayMilliseconds) { ItemIndex = index });
+            }
         }
 
         return actions;

@@ -50,6 +50,13 @@ First functional release.
 - Floating controller: live bundle dropdown, bundle-count +/- buttons, hide button
   (DataContext binding fix — dropdown was previously empty).
 
+### Changed
+
+- Item-confirmation sequence hardened (external contribution integrated): after typing an
+  optional custom price and pressing Enter, the builder now sends 5 confirmation Enters with
+  the configured delay after each press, dismissing an intermittent Sahel popup before the
+  next product is searched.
+
 ### Fixed
 
 - Startup crash #2: `ProgressBar.Value` (TwoWay by default) bound to read-only
