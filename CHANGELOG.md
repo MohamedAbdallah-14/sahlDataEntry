@@ -44,6 +44,8 @@ First functional release.
 
 ### Fixed
 
+- Startup crash #2: `ProgressBar.Value` (TwoWay by default) bound to read-only
+  `ProgressFraction`; binding is now explicit `Mode=OneWay`.
 - First-run crash on real Windows: `CreateWindowExW`/`UnregisterClassW` marshaled the
   window-class name as ANSI into wide-char APIs (`ERROR_CANNOT_FIND_WND_CLASS`).
   Both declarations now use `CharSet.Unicode`; Arabic errors name the failing API
