@@ -23,7 +23,7 @@ public sealed class SettingsViewModel : ObservableObject
 
     public SettingsViewModel(
         AppDataService data,
-        GlobalHotkeyManager hotkeys,
+        GlobalHotkeyManager? hotkeys,
         BackupService backup,
         Action reapplyShortcutsAndReport)
     {

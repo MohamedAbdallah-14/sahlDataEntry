@@ -39,7 +39,8 @@ public sealed class MessageOnlyWindow : IDisposable
         if (atom == 0 && Marshal.GetLastWin32Error() != 1410) // 1410 = class already registered
         {
             throw new System.ComponentModel.Win32Exception(
-                Marshal.GetLastWin32Error(), "تعذر إنشاء نافذة الرسائل الداخلية.");
+                Marshal.GetLastWin32Error(),
+                $"تعذر تسجيل نافذة الرسائل الداخلية (RegisterClass، رمز الخطأ {Marshal.GetLastWin32Error()}).");
         }
 
         _registeredClass = true;
@@ -52,8 +53,10 @@ public sealed class MessageOnlyWindow : IDisposable
 
         if (_handle == IntPtr.Zero)
         {
+            var createError = Marshal.GetLastWin32Error();
             throw new System.ComponentModel.Win32Exception(
-                Marshal.GetLastWin32Error(), "تعذر إنشاء نافذة الرسائل الداخلية.");
+                createError,
+                $"تعذر إنشاء نافذة الرسائل الداخلية (CreateWindow، رمز الخطأ {createError}).");
         }
     }
 
