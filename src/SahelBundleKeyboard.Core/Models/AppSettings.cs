@@ -11,7 +11,7 @@ public static class SettingLimits
 
 public sealed class AppSettings
 {
-    public const int DefaultDelayMilliseconds = 120;
+    public const int DefaultDelayMilliseconds = 90;
     public const int DefaultCountdownSeconds = 2;
 
     /// <summary>Global delay in ms applied between automation actions (0..5000).</summary>

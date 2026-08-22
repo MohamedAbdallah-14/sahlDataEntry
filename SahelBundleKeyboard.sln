@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SahelBundleKeyboard.Core.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SahelBundleKeyboard.Infrastructure.Tests", "tests\SahelBundleKeyboard.Infrastructure.Tests\SahelBundleKeyboard.Infrastructure.Tests.csproj", "{D3C50392-2157-4CC5-BE73-E22408CB6542}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SahelBundleKeyboard.App.Tests", "tests\SahelBundleKeyboard.App.Tests\SahelBundleKeyboard.App.Tests.csproj", "{86277788-4A9A-4398-BCA6-A8833642B5CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,18 @@ Global
 		{D3C50392-2157-4CC5-BE73-E22408CB6542}.Release|x64.Build.0 = Release|Any CPU
 		{D3C50392-2157-4CC5-BE73-E22408CB6542}.Release|x86.ActiveCfg = Release|Any CPU
 		{D3C50392-2157-4CC5-BE73-E22408CB6542}.Release|x86.Build.0 = Release|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Debug|x64.Build.0 = Debug|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Debug|x86.Build.0 = Debug|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Release|x64.ActiveCfg = Release|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Release|x64.Build.0 = Release|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Release|x86.ActiveCfg = Release|Any CPU
+		{86277788-4A9A-4398-BCA6-A8833642B5CD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,5 +126,6 @@ Global
 		{7392672E-6A44-484C-961F-0F152D6AB74E} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{7DE27E34-5C7F-4F3E-BD5E-D9EA24286893} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{D3C50392-2157-4CC5-BE73-E22408CB6542} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{86277788-4A9A-4398-BCA6-A8833642B5CD} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

@@ -43,15 +43,15 @@ public class SequenceBuilderTests
             new PressEnterAction { ItemIndex = 0 },
             new WaitAction(150) { ItemIndex = 0 },
             new PressEnterAction { ItemIndex = 0 },
-            new WaitAction(150) { ItemIndex = 0 },
+            new WaitAction(150) { ItemIndex = 0 },   // first confirmation: full delay
             new PressEnterAction { ItemIndex = 0 },
-            new WaitAction(150) { ItemIndex = 0 },
+            new WaitAction(60) { ItemIndex = 0 },    // follow-ups capped at 60ms
             new PressEnterAction { ItemIndex = 0 },
-            new WaitAction(150) { ItemIndex = 0 },
+            new WaitAction(60) { ItemIndex = 0 },
             new PressEnterAction { ItemIndex = 0 },
-            new WaitAction(150) { ItemIndex = 0 },
+            new WaitAction(60) { ItemIndex = 0 },
             new PressEnterAction { ItemIndex = 0 },
-            new WaitAction(150) { ItemIndex = 0 }
+            new WaitAction(60) { ItemIndex = 0 }
         };
 
         Assert.Equal(expected.Length, actions.Count);
@@ -133,7 +133,8 @@ public class SequenceBuilderTests
         {
             Assert.IsType<PressEnterAction>(finalActions[i]);
             var wait = Assert.IsType<WaitAction>(finalActions[i + 1]);
-            Assert.Equal(75, wait.DelayMilliseconds);
+            var expectedDelay = i == 0 ? 75 : SequenceBuilder.FollowUpConfirmationDelayMs;
+            Assert.Equal(expectedDelay, wait.DelayMilliseconds);
         }
     }
 

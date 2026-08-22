@@ -14,11 +14,13 @@ public sealed class BundlesViewModel : ObservableObject
 {
     private readonly MainViewModel _main;
     private readonly AppDataService _data;
+    private readonly Func<string, bool> _confirm;
 
-    public BundlesViewModel(MainViewModel main, AppDataService data)
+    public BundlesViewModel(MainViewModel main, AppDataService data, Func<string, bool>? confirm = null)
     {
         _main = main;
         _data = data;
+        _confirm = confirm ?? UiText.Confirm;
 
         NewBundleCommand = new RelayCommand(CreateBundle);
         DuplicateBundleCommand = new RelayCommand(DuplicateBundle, () => _main.SelectedBundle is not null);
@@ -96,13 +98,14 @@ public sealed class BundlesViewModel : ObservableObject
             return;
         }
 
-        var confirmed = UiText.Confirm($"هل تريد حذف الحزمة \"{bundle.Name}\" نهائياً مع كل أصنافها؟");
-        if (!confirmed)
+        if (!_confirm($"هل تريد حذف الحزمة \"{bundle.Name}\" نهائياً مع كل أصنافها؟"))
         {
             return;
         }
 
-        _main.RemoveSelectedBundle();
+        // Operate on the captured reference, not on current selection which may have
+        // changed while the confirmation dialog pumped messages.
+        _main.RemoveBundle(bundle);
     }
 
     public void AddItem()
@@ -130,13 +133,25 @@ public sealed class BundlesViewModel : ObservableObject
 
     public void DeleteSelectedItem()
     {
-        if (_main.SelectedBundle is not { } bundle || SelectedItem is null)
+        if (_main.SelectedBundle is not { } bundle || SelectedItem is not { } item)
         {
             return;
         }
 
-        bundle.Items.Remove(SelectedItem);
-        _ = bundle.Model.Items.Remove(SelectedItem.Model);
+        var index = bundle.Items.IndexOf(item);
+        if (index < 0 || !ReferenceEquals(bundle.Model.Items.ElementAtOrDefault(index), item.Model))
+        {
+            // Wrapper/model out of sync (e.g. replaced by import) — resync and retry safely.
+            bundle.Items.Clear();
+            foreach (var m in bundle.Model.Items.OrderBy(i => i.Order))
+            {
+                bundle.Items.Add(EditableBundleItem.FromModel(m));
+            }
+            return;
+        }
+
+        bundle.Items.RemoveAt(index);
+        bundle.Model.Items.RemoveAt(index);
         bundle.ReapplyOrder();
         bundle.RefreshItemsSummary();
         SelectedItem = null;

@@ -53,11 +53,18 @@ First functional release.
 ### Changed
 
 - Item-confirmation sequence hardened (external contribution integrated): after typing an
-  optional custom price and pressing Enter, the builder now sends 5 confirmation Enters with
-  the configured delay after each press, dismissing an intermittent Sahel popup before the
-  next product is searched.
+  optional custom price and pressing Enter, the builder now sends 5 confirmation Enters.
+  The first confirmation keeps the full configured delay; follow-ups are capped at 60 ms
+  so runs stay fast. Default delay lowered 120 -> 90 ms.
 
 ### Fixed
+
+- Deleting a bundle or an item no longer throws NullReferenceException on Windows
+  (deletion now operates on the captured instance; stale wrapper/model rows resync
+  instead of crashing). Covered by new headless view-model regression tests
+  (tests/SahelBundleKeyboard.App.Tests — executed on Windows CI).
+
+### Changed
 
 - Startup crash #2: `ProgressBar.Value` (TwoWay by default) bound to read-only
   `ProgressFraction`; binding is now explicit `Mode=OneWay`.

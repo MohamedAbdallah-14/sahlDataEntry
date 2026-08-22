@@ -18,6 +18,13 @@ namespace SahelBundleKeyboard.Core.Sequencing;
 /// </summary>
 public static class SequenceBuilder
 {
+    /// <summary>Confirmation Enters after each item (dismisses intermittent popups).</summary>
+    public const int ConfirmationEnterCount = 5;
+
+    /// <summary>Cap for follow-up confirmation waits so long configured delays stay fast.</summary>
+    public const int FollowUpConfirmationDelayMs = 60;
+
+
     public static IReadOnlyList<InputAction> Build(Bundle bundle, int bundleCount, int delayMilliseconds)
     {
         if (bundle is null)
@@ -68,12 +75,18 @@ public static class SequenceBuilder
                 actions.Add(new TypeTextAction(QuantityFormatter.Format(item.CustomPrice.Value)) { ItemIndex = index });
             }
 
-            // Confirm the item and dismiss any intermittent Sahel popup. Waiting after
-            // every press gives a popup time to appear before the next Enter is sent.
-            for (var confirmation = 0; confirmation < 5; confirmation++)
+            // Confirm the item and dismiss any intermittent Sahel popup: 5 Enters.
+            // The first wait uses the full configured delay (popup needs time to appear);
+            // subsequent confirmations use a short capped delay to keep runs fast.
+            var followUpDelay = Math.Min(delayMilliseconds, FollowUpConfirmationDelayMs);
+
+            for (var confirmation = 0; confirmation < ConfirmationEnterCount; confirmation++)
             {
                 actions.Add(new PressEnterAction { ItemIndex = index });
-                actions.Add(new WaitAction(delayMilliseconds) { ItemIndex = index });
+                actions.Add(new WaitAction(confirmation == 0 ? delayMilliseconds : followUpDelay)
+                {
+                    ItemIndex = index
+                });
             }
         }
 
