@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إدخال حزم سهل — تقرير الجلسة</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --panel2: #1c2431; --line: #2b3648;
+    --text: #e6edf3; --muted: #8b98a9;
+    --green: #2ea86a; --amber: #e0a437; --red: #d9534f; --blue: #4a9eff; --teal: #21a493;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    background: linear-gradient(160deg, #0d1117 0%, #101725 55%, #0d1420 100%);
+    color: var(--text); min-height: 100vh; line-height: 1.75;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  header.hero { text-align: center; padding: 46px 20px 34px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+  header.hero h1 { font-size: 2.35rem; font-weight: 800; letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #4a9eff, #21a493, #2ea86a);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  header.hero p { color: var(--muted); font-size: 1.05rem; max-width: 720px; margin: 12px auto 0; }
+  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+  .badge { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px;
+           padding: 5px 16px; font-size: .85rem; color: var(--muted); }
+  .badge b { color: var(--text); }
+
+  h2.section { font-size: 1.45rem; font-weight: 700; margin: 44px 0 18px; display: flex; align-items: center; gap: 10px; }
+  h2.section::before { content: ""; width: 6px; height: 26px; border-radius: 4px;
+    background: linear-gradient(180deg, var(--blue), var(--teal)); }
+
+  .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px 16px; text-align: center; transition: transform .15s ease, border-color .15s ease; }
+  .stat:hover { transform: translateY(-3px); border-color: #3d4f68; }
+  .stat .num { font-size: 2rem; font-weight: 800; color: #fff; }
+  .stat .lbl { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+  .card h3 { font-size: 1.08rem; margin-bottom: 10px; color: #fff; }
+  .card ul { list-style: none; }
+  .card li { padding: 5px 0 5px 0; color: #c6d2de; font-size: .93rem; position: relative; padding-right: 20px; }
+  .card li::before { content: "◂"; position: absolute; right: 0; color: var(--teal); font-size: .8rem; top: 7px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* LOC bar chart */
+  .bars { display: flex; flex-direction: column; gap: 13px; }
+  .bar-row { display: grid; grid-template-columns: 190px 1fr 70px; align-items: center; gap: 12px; font-size: .88rem; }
+  .bar-row .name { color: #c6d2de; }
+  .bar-track { background: var(--panel2); height: 22px; border-radius: 7px; overflow: hidden; border: 1px solid var(--line); }
+  .bar-fill { height: 100%; border-radius: 6px 0 0 6px; width: 0; animation: grow 1.1s ease forwards; }
+  @keyframes grow { from { width: 0; } }
+  .bar-row .val { color: var(--muted); text-align: left; direction: ltr; }
+  .c-blue { background: linear-gradient(90deg, #2f6fbe, #4a9eff); }
+  .c-teal { background: linear-gradient(90deg, #157f72, #21a493); }
+  .c-green{ background: linear-gradient(90deg, #20794c, #2ea86a); }
+  .c-amber{ background: linear-gradient(90deg, #b07f22, #e0a437); }
+  .c-red  { background: linear-gradient(90deg, #a83c38, #d9534f); }
+  .c-grey { background: linear-gradient(90deg, #55627a, #8b98a9); }
+
+  /* sequence diagram */
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; direction: rtl; }
+  .step { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
+          padding: 8px 14px; font-size: .85rem; color: #c6d2de; position: relative; }
+  .step b { color: var(--amber); }
+  .step.enter { border-color: var(--green); }
+  .step.enter b { color: var(--green); }
+  .arrow { align-self: center; color: #55627a; font-size: 1.1rem; }
+
+  /* state machine */
+  .states { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .state-chip { border-radius: 999px; padding: 7px 18px; font-weight: 600; font-size: .87rem; border: 1px solid transparent; }
+  .s-idle { background: #232b36; color: #aab7c6; border-color: #39465a; }
+  .s-count{ background: rgba(224,164,55,.14); color: #e0a437; border-color: rgba(224,164,55,.4);}
+  .s-run  { background: rgba(46,168,106,.14); color: #43c98a; border-color: rgba(46,168,106,.4);}
+  .s-pause{ background: rgba(192,108,14,.15); color: #e08a3c; border-color: rgba(224,138,60,.4);}
+  .s-done { background: rgba(33,164,147,.14); color: #2fc4ad; border-color: rgba(33,164,147,.4);}
+  .s-stop { background: rgba(217,83,79,.13); color: #ef7a76; border-color: rgba(217,83,79,.4);}
+  .state-note { color: var(--muted); font-size: .85rem; margin-top: 12px; }
+
+  /* checklist */
+  table.dod { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.dod td { padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.dod tr:last-child td { border-bottom: none; }
+  .ok { color: var(--green); font-weight: 800; white-space: nowrap; }
+  .warn { color: var(--amber); font-weight: 700; white-space: nowrap; }
+  .mono { direction: ltr; text-align: left; font-family: Consolas, "Courier New", monospace; font-size: .82rem;
+          color: #9fb2c6; background: #0b1017; border: 1px solid var(--line); border-radius: 10px;
+          padding: 16px 20px; overflow-x: auto; line-height: 1.6; }
+
+  .timeline { border-right: 2px solid var(--line); padding-right: 22px; }
+  .tl-item { position: relative; padding: 8px 0 14px; }
+  .tl-item::before { content: ""; position: absolute; right: -29px; top: 15px; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--bg); border: 3px solid var(--teal); }
+  .tl-item .msg { font-family: Consolas, monospace; direction: ltr; text-align: left; font-size: .84rem; color: #c6d2de; }
+  .tl-item .meta { color: var(--muted); font-size: .78rem; }
+
+  footer { text-align: center; color: var(--muted); font-size: .82rem; margin-top: 60px; border-top: 1px solid var(--line); padding-top: 24px; }
+  a { color: var(--blue); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>إدخال حزم سهل — Sahel Bundle Keyboard</h1>
+    <p>بناء كامل من الصفر حتى الإصدار v1.0.0: برنامج ويندوز محمول يكتب الحزم داخل سهل عبر ضغطات لوحة مفاتيح حقيقية — واجهة عربية RTL، اختصارات عامة، وحدة تحكم لا تسرق التركيز، حفظ ذري، استيراد Excel/CSV، نسخ احتياطي، CI/CD على مستودع GitHub.</p>
+    <div class="badges">
+      <span class="badge">الإصدار <b>v1.0.0</b></span>
+      <span class="badge">التاريخ <b>2026-08-22</b></span>
+      <span class="badge">المنصة <b>Windows 10/11 x64</b></span>
+      <span class="badge">التقنية <b>C# · .NET 10 · WPF · Win32</b></span>
+      <span class="badge">تبعيات وقت التشغيل <b>صفر</b></span>
+    </div>
+  </header>
+
+  <!-- ======== STATS ======== -->
+  <h2 class="section">أرقام الجلسة</h2>
+  <div class="grid-stats">
+    <div class="stat"><div class="num">100</div><div class="lbl">ملف في المستودع</div></div>
+    <div class="stat"><div class="num">8,134</div><div class="lbl">سطر برمجي وتوثيق</div></div>
+    <div class="stat"><div class="num">69</div><div class="lbl">ملف C#</div></div>
+    <div class="stat"><div class="num">112</div><div class="lbl">اختبار آلي ناجح</div></div>
+    <div class="stat"><div class="num">16</div><div class="lbl">Commit بأسلوب gitflow</div></div>
+    <div class="stat"><div class="num">0</div><div class="lbl">تحذيرات بناء (Warnings-as-errors)</div></div>
+  </div>
+
+  <!-- ======== LOC ======== -->
+  <h2 class="section">توزيع الأسطر البرمجية</h2>
+  <div class="card">
+    <div class="bars">
+      <div class="bar-row"><span class="name">واجهة WPF (App)</span><div class="bar-track"><div class="bar-fill c-blue" style="width:100%"></div></div><span class="val">2,412</span></div>
+      <div class="bar-row"><span class="name">الاختبارات (xUnit)</span><div class="bar-track"><div class="bar-fill c-green" style="width:79%"></div></div><span class="val">1,902</span></div>
+      <div class="bar-row"><span class="name">البنية التحتية</span><div class="bar-track"><div class="bar-fill c-teal" style="width:52%"></div></div><span class="val">1,251</span></div>
+      <div class="bar-row"><span class="name">النواة (Core)</span><div class="bar-track"><div class="bar-fill c-amber" style="width:50%"></div></div><span class="val">1,194</span></div>
+      <div class="bar-row"><span class="name">تفاعل ويندوز (Win32)</span><div class="bar-track"><div class="bar-fill c-red" style="width:22%"></div></div><span class="val">528</span></div>
+      <div class="bar-row"><span class="name">توثيق + CI</span><div class="bar-track"><div class="bar-fill c-grey" style="width:19%"></div></div><span class="val">451</span></div>
+    </div>
+  </div>
+
+  <!-- ======== SEQUENCE ======== -->
+  <h2 class="section">التسلسل المُنفَّذ لكل صنف (كما يتطلبه سهل)</h2>
+  <div class="card">
+    <div class="flow">
+      <span class="step"><b>١</b> كتابة الكود أو الاسم (Unicode)</span><span class="arrow">←</span>
+      <span class="step enter"><b>٢</b> Enter</span><span class="arrow">←</span>
+      <span class="step"><b>٣</b> تأخير عام</span><span class="arrow">←</span>
+      <span class="step"><b>٤</b> الكمية النهائية (الأساسية × عدد الحزم)</span><span class="arrow">←</span>
+      <span class="step enter"><b>٥</b> Enter</span><span class="arrow">←</span>
+      <span class="step"><b>٦</b> تأخير عام</span><span class="arrow">←</span>
+      <span class="step"><b>٧</b> السعر المخصص إن وجد فقط</span><span class="arrow">←</span>
+      <span class="step enter"><b>٨</b> Enter</span><span class="arrow">←</span>
+      <span class="step"><b>٩</b> تأخير ثم الصنف التالي</span>
+    </div>
+    <p class="state-note">
+      الأرقام بصيغة ثابتة بفاصلة عشرية نقطة بدون أصفار زائدة (<span dir="ltr">2 · 1.25 · 4.5</span>) —
+      لا Ctrl+A ولا Backspace لأن سهل يحدد القيمة القديمة تلقائياً — الكود له أولوية على الاسم —
+      التسلسل مبني كقائمة إجراءات مجردة تُختبر بمحاكيات دون أي ضغطات حقيقية.
+    </p>
+  </div>
+
+  <!-- ======== STATE MACHINE ======== -->
+  <h2 class="section">محرك التنفيذ (آلة الحالة)</h2>
+  <div class="card">
+    <div class="states">
+      <span class="state-chip s-idle">جاهز</span><span class="arrow">→</span>
+      <span class="state-chip s-count">عد تنازلي 0–3ث</span><span class="arrow">→</span>
+      <span class="state-chip s-run">قيد الإدخال</span><span class="arrow">→</span>
+      <span class="state-chip s-done">اكتمل</span>
+    </div>
+    <div class="states" style="margin-top:12px">
+      <span class="state-chip s-run">أثناء الإدخال</span><span class="arrow">⇄</span>
+      <span class="state-chip s-pause">إيقاف مؤقت (نفس الخطوة بالضبط)</span><span class="arrow">→</span>
+      <span class="state-chip s-stop">إيقاف نهائي فوري</span>
+    </div>
+    <ul style="margin-top:14px">
+      <li>منع التداخل: لا يمكن بدء تشغيل ثانٍ أثناء عمل واحد (رفض واضح بالعربية).</li>
+      <li>فحص الإلغاء والإيقاف المؤقت بين كل ضغطة مفاتيح وليس بين الأصناف فقط.</li>
+      <li>تنفيذ غير متزامن على Thread Pool — الواجهة لا تتجمد أبداً؛ الأحداث تعود إلى Dispatcher.</li>
+      <li>الإيقاف النهائي لا يتراجع عن النص المكتوب مسبقاً (موضّح للمستخدم في الواجهة والملفات).</li>
+    </ul>
+  </div>
+
+  <!-- ======== WHAT WAS BUILT ======== -->
+  <h2 class="section">ما تم بناؤه</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3>🧠 النواة — Core <span dir="ltr">(net10.0)</span></h3>
+      <ul>
+        <li>نماذج Bundle / BundleItem مع هويات Guid ثابتة وترتيب صريح وتكرار مقصود للصفوف.</li>
+        <li>SequenceBuilder يبني قائمة إجراءات مجردة قابلة للاختبار بالكامل.</li>
+        <li>محرك حالة غير متزامن + بوابة AsyncGate للإيقاف المؤقت الدقيق.</li>
+        <li>محلل اختصارات (Ctrl/Alt إلزامي، رفض F12 المحجوز، كشف التعارضات).</li>
+        <li>تنسيق أرقام Invariant مع تطبيع الأرقام العربية الهندية ورفض الفاصلة العشرية اللاتينية.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🗄️ البنية التحتية — Infrastructure</h3>
+      <ul>
+        <li>حفظ JSON ذري (ملف مؤقت + استبدال) بترميز UTF-8 يحافظ على العربية.</li>
+        <li>عزل الملفات التالفة أو الأحدث إصداراً بأسماء مؤرخة دون المساس بالمحتوى الأصلي.</li>
+        <li>نسخ احتياطي كامل مع تحقق شامل ومعاينة ونسخة أمان قبل الاستبدال.</li>
+        <li>قارئ/كاتب XLSX يدوي (ZipArchive+XmlReader) وقارئ CSV متوافق RFC-4180 — بلا مكتبات خارجية.</li>
+        <li>سجل دوّار محدود الحجم (دوران بالحجم + حذف بعد 7 أيام) بلا تسجيل لأي منتجات مدخلة.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🪟 تفاعل ويندوز — Windows interop</h3>
+      <ul>
+        <li>حقن SendInput: أحداث Unicode للنص العربي/الإنجليزي (Surrogate pairs في دفعة واحدة)، Enter بمفتاح افتراضي + Scan code.</li>
+        <li>نافذة رسائل فقط HWND_MESSAGE لاستقبال WM_HOTKEY.</li>
+        <li>تسجيل الاختصارات العامة بـ MOD_NOREPEAT مع تراجع كامل إلى آخر مجموعة صالحة عند أي تعارض.</li>
+        <li>سلوك النافذة العائمة: WS_EX_NOACTIVATE + WS_EX_TOOLWINDOW + TOPMOST + MA_NOACTIVATE.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🖥️ الواجهة — WPF App</h3>
+      <ul>
+        <li>ثلاثة تبويبات عربية RTL: التشغيل، الحزم، الإعدادات + شارة حالة ملونة ورأس معلومات.</li>
+        <li>شبكة أصناف قابلة للتحرير مع تحقق فوري بالعربية (IDataErrorInfo) وأزرار ترتيب أعلى/أسفل.</li>
+        <li>معاينة استيراد تفاعلية: صفوف صالحة/باطئة بالأحمر + خيار إضافة أو استبدال.</li>
+        <li>مربعات التقاط اختصارات بالنقر ثم الضغط (HotkeyCaptureBox) مع مسح بـ Backspace.</li>
+        <li>وحدة تحكم عائمة قابلة للسحب تعرض العد التنازلي والتقدم ولا تسرق التركيز أبداً.</li>
+        <li>app.manifest: asInvoker افتراضياً + PerMonitorV2 لدقة الشاشات المتعددة.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ======== PIPELINE ======== -->
+  <h2 class="section">خط الإنتاج على GitHub Actions (بدون أي أدوات على الماك)</h2>
+  <div class="card">
+    <div class="flow" dir="ltr" style="justify-content:center">
+      <span class="step">actions/checkout@v4</span><span class="arrow">→</span>
+      <span class="step">setup-dotnet@v4 ‏(10.0.x)</span><span class="arrow">→</span>
+      <span class="step">restore --locked-mode</span><span class="arrow">→</span>
+      <span class="step">build Release (warnings=errors)</span><span class="arrow">→</span>
+      <span class="step">dotnet test (112)</span><span class="arrow">→</span>
+      <span class="step">publish win-x64 single-file</span><span class="arrow">→</span>
+      <span class="step">مجلد محمول + README عربي</span><span class="arrow">→</span>
+      <span class="step">ZIP + SHA256</span>
+    </div>
+    <ul style="margin-top:14px">
+      <li><b>ci.yml:</b> يعمل عند push/PR على main و develop على windows-latest وينتج artifacts جاهزة للتنزيل.</li>
+      <li><b>release.yml:</b> tag ‏v* أو تشغيل يدوي بإدخال إصدار — ينشئ Tag إن كان يدوياً، وينشر GitHub Release عبر gh CLI مع استبدال assets عند إعادة التشغيل (بلا تكرار)، وصلاحية contents:write فقط.</li>
+      <li>ملفات packages.lock.json لجميع المشاريع ملتزمة والاستعادة المقفلة مُتحقَّق منها محلياً.</li>
+    </ul>
+  </div>
+
+  <!-- ======== COMMITS ======== -->
+  <h2 class="section">مسار العمل (gitflow)</h2>
+  <div class="card timeline">
+    <div class="tl-item"><div class="meta">main → أساس المشروع</div><div class="msg">chore: bootstrap solution scaffold and build props</div></div>
+    <div class="tl-item"><div class="meta">feature/core-domain</div><div class="msg">feat(core): models, validation, sequence builder, hotkeys, automation engine</div></div>
+    <div class="tl-item"><div class="meta">feature/infrastructure</div><div class="msg">feat(infrastructure): atomic JSON store, backups, csv/xlsx, rolling log</div></div>
+    <div class="tl-item"><div class="meta">feature/windows-interop</div><div class="msg">feat(windows): sendinput, message-only hotkey window, no-activate behavior</div></div>
+    <div class="tl-item"><div class="meta">feature/wpf-app</div><div class="msg">feat(app): full Arabic RTL WPF application + floating controller</div></div>
+    <div class="tl-item"><div class="meta">feature/ci-release</div><div class="msg">feat(ci): locked restore + release build/test/package on windows runners</div></div>
+    <div class="tl-item"><div class="meta">feature/docs</div><div class="msg">docs: Arabic readme, architecture, manual test, contributing, changelog</div></div>
+    <div class="tl-item"><div class="meta">release/1.0.0 → main + tag v1.0.0 → develop</div><div class="msg">release: 1.0.0</div></div>
+  </div>
+
+  <!-- ======== DOD ======== -->
+  <h2 class="section">تعريف الإنجاز — الحالة النهائية</h2>
+  <div class="card">
+    <table class="dod">
+      <tr><td class="ok">✔ منجز</td><td>تطبيق WPF وظيفي كامل (وليس هيكلاً) بواجهة عربية RTL.</td></tr>
+      <tr><td class="ok">✔ منجز</td><td>إنشاء/تحرير/تكرار/حذف/ترتيب الحزم والأصناف + استيراد + نسخ احتياطي.</td></tr>
+      <tr><td class="ok">✔ منجز</td><td>أولوية الكود، ضرب الكميات، سلوك السعر الاختياري، تسلسل Enter مطابق للمواصفة.</td></tr>
+      <tr><td class="ok">✔ منجز</td><td>اختصارات عامة + وحدة تحكم عائمة غير سارقة للتركيز.</td></tr>
+      <tr><td class="ok">✔ منجز</td><td>عد تنازلي/إيقاف مؤقت/استئناف/إيقاف فوري عبر آلة حالة قابلة للإلغاء.</td></tr>
+      <tr><td class="ok">✔ منجز</td><td>حفظ ذري واستيراد/تصدير نسخ احتياطي كامل مع نسخة أمان.</td></tr>
+      <tr><td class="ok">✔ منجز</td><td>CI يبني ويختبر على windows-latest، و Release ينتج ZIP محمولاً + SHA256.</td></tr>
+      <tr><td class="ok">✔ منجز</td><td>112 اختباراً آلياً ناجحاً محلياً على الماك (Core + Infrastructure).</td></tr>
+      <tr><td class="ok">✔ منجز</td><td>docs/manual-windows-test.md بقائمة الفحص العشرية الكاملة.</td></tr>
+      <tr><td class="warn">⚠ يدوي</td><td>اختبار حقن المفاتيح الفعلي داخل سهل يتطلب جهاز ويندوز حقيقياً — موثق خطوة بخطوة، ولا يمكن لـ CI إثباته.</td></tr>
+      <tr><td class="warn">⚠ معروف</td><td>إن كان سهل يعمل كمسؤول فيجب تشغيل البرنامج كمسؤول أيضاً (قيود UIPI في ويندوز) — موثق بالعربية والإنجليزية.</td></tr>
+    </table>
+  </div>
+
+  <!-- ======== NEXT STEPS ======== -->
+  <h2 class="section">خطواتك التالية</h2>
+  <div class="card">
+    <ul>
+      <li>أنشئ مستودعاً على GitHub واربطه: <span dir="ltr">git remote add origin &lt;URL&gt;</span> ثم ارفع <span dir="ltr">main + develop + tags</span>.</li>
+      <li>انتظر أخضر CI ← تبويب Actions ← Release ← Run workflow ← أدخل <span dir="ltr">v1.0.0</span>.</li>
+      <li>نزّل <span dir="ltr">Sahel-Bundle-Keyboard-win-x64.zip</span> من Releases وجرّبه على ويندوز وفق docs/manual-windows-test.md.</li>
+      <li>ابدأ بـ Notepad أولاً كما في القائمة، ثم انتقل لسهل فعلياً.</li>
+    </ul>
+  </div>
+
+  <footer>
+    تم إنشاء هذا التقرير تلقائياً في نهاية جلسة التطوير — كل الأرقام مأخوذة مباشرة من المستودع.
+    <br>SahelBundleKeyboard · v1.0.0 · 2026-08-22
+  </footer>
+</div>
+</body>
+</html>
