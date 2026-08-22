@@ -42,6 +42,13 @@ First functional release.
   Arabic quick-start README and Data placeholder, ZIP + SHA256 artifacts.
 - Release workflow for `v*` tags and manual dispatch with idempotent reruns via GitHub CLI.
 
+### Fixed
+
+- First-run crash on real Windows: `CreateWindowExW`/`UnregisterClassW` marshaled the
+  window-class name as ANSI into wide-char APIs (`ERROR_CANNOT_FIND_WND_CLASS`).
+  Both declarations now use `CharSet.Unicode`; Arabic errors name the failing API
+  and Win32 error code; a hotkey-subsystem failure no longer aborts startup.
+
 ### Notes / limitations
 
 - Windows integrity restriction: if Sahel runs elevated, this utility must also run as administrator
