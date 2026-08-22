@@ -2,6 +2,10 @@ using System.Windows.Input;
 
 namespace SahelBundleKeyboard.App.Infrastructure;
 
+/// <summary>
+/// RelayCommand hooked into WPF's CommandManager so CanExecute re-evaluates
+/// automatically after selection/focus changes — buttons never stay stale-greyed.
+/// </summary>
 public sealed class RelayCommand : ICommand
 {
     private readonly Action<object?> _execute;
@@ -18,12 +22,16 @@ public sealed class RelayCommand : ICommand
         _canExecute = canExecute;
     }
 
-    public event EventHandler? CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged
+    {
+        add => CommandManager.RequerySuggested += value;
+        remove => CommandManager.RequerySuggested -= value;
+    }
 
     public bool CanExecute(object? parameter) => _canExecute?.Invoke(parameter) ?? true;
 
     public void Execute(object? parameter) => _execute(parameter);
 
-    public void RaiseCanExecuteChanged() =>
-        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    /// <summary>Manual nudge for cases CommandManager cannot see (programmatic state flips).</summary>
+    public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
 }

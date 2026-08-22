@@ -1,8 +1,10 @@
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Input;
 using SahelBundleKeyboard.App.Infrastructure;
 using SahelBundleKeyboard.App.ViewModels;
 using SahelBundleKeyboard.Core.Automation;
+using SahelBundleKeyboard.Core.Sequencing;
 using SahelBundleKeyboard.Windows.Windows;
 
 namespace SahelBundleKeyboard.App.Views;
@@ -11,6 +13,7 @@ namespace SahelBundleKeyboard.App.Views;
 /// Compact always-on-top controller whose mouse clicks never activate the window
 /// (WS_EX_NOACTIVATE + WM_MOUSEACTIVATE=MA_NOACTIVATE), so keyboard focus stays with
 /// whatever application the operator is typing into — including Sahel.
+/// Shows bundle selection, bundle count (+/-), countdown, progress and run controls.
 /// </summary>
 public sealed partial class FloatingControllerWindow : Window
 {
@@ -32,11 +35,7 @@ public sealed partial class FloatingControllerWindow : Window
 
         viewModel.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(MainViewModel.ControllerTitle))
-            {
-                TitleText.Text = viewModel.ControllerTitle;
-            }
-            else if (e.PropertyName is nameof(MainViewModel.ProgressText))
+            if (e.PropertyName is nameof(MainViewModel.ProgressText))
             {
                 ProgressLabel.Text = viewModel.ProgressText;
                 ControllerProgress.Value = viewModel.ProgressFraction;
@@ -52,7 +51,6 @@ public sealed partial class FloatingControllerWindow : Window
             }
             else if (e.PropertyName is nameof(MainViewModel.StatusMessage))
             {
-                // Show countdown seconds big; other statuses inline.
                 if (viewModel.State == AutomationState.Countdown && viewModel.StatusMessage.Length > 0)
                 {
                     var digits = new string(viewModel.StatusMessage.Where(char.IsDigit).ToArray());
@@ -64,8 +62,6 @@ public sealed partial class FloatingControllerWindow : Window
                 }
             }
         };
-
-        TitleText.Text = viewModel.ControllerTitle;
     }
 
     private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -80,10 +76,9 @@ public sealed partial class FloatingControllerWindow : Window
         return IntPtr.Zero;
     }
 
-    private void OnDragMoveRequested(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    private void OnDragMoveRequested(object sender, MouseButtonEventArgs e)
     {
-        // DragMove works without activation; focus stays with the foreground app.
-        if (e.ButtonState == System.Windows.Input.MouseButtonState.Pressed)
+        if (e.ButtonState == MouseButtonState.Pressed)
         {
             try
             {
@@ -94,6 +89,19 @@ public sealed partial class FloatingControllerWindow : Window
                 // mouse already released; ignore
             }
         }
+    }
+
+    private void OnHideClick(object sender, RoutedEventArgs e) => _viewModel.SetControllerVisible(false);
+
+    private void OnPlusClick(object sender, RoutedEventArgs e) => AdjustCount(+1);
+
+    private void OnMinusClick(object sender, RoutedEventArgs e) => AdjustCount(-1);
+
+    private void AdjustCount(int delta)
+    {
+        var current = QuantityFormatter.TryParse(_viewModel.BundleCountText, out var value) ? (int)value : 1;
+        var next = Math.Clamp(current + delta, 1, 9999);
+        _viewModel.BundleCountText = next.ToString();
     }
 
     private void OnGoClick(object sender, RoutedEventArgs e) => _viewModel.Start();
