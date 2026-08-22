@@ -111,7 +111,6 @@ public sealed class BackupService
             document.Settings.DelayMilliseconds,
             document.Settings.CountdownSeconds,
             document.Settings.StartShortcut,
-            document.Settings.PauseResumeShortcut,
             document.Settings.StopShortcut);
     }
 
@@ -152,5 +151,4 @@ public sealed record BackupPreview(
     int DelayMilliseconds,
     int CountdownSeconds,
     string StartShortcut,
-    string PauseResumeShortcut,
     string StopShortcut);

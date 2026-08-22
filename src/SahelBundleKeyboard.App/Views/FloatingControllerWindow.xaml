@@ -75,13 +75,10 @@
 
             <!-- Action buttons -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <Button x:Name="GoButton" Content="ابدأ ▶" Width="78" Height="34"
+                <Button x:Name="GoButton" Content="ابدأ ▶" Width="110" Height="34"
                         Background="#1B7A43" Foreground="White" FontWeight="Bold" BorderThickness="0"
                         Cursor="Hand" Click="OnGoClick" Focusable="False"/>
-                <Button x:Name="PauseButton" Content="إيقاف مؤقت" Width="82" Height="34" Margin="6,0,0,0"
-                        Background="#3A4A5C" Foreground="White" BorderThickness="0" FontSize="12"
-                        Cursor="Hand" Click="OnPauseResumeClick" Focusable="False"/>
-                <Button Content="⏹ إنهاء" Width="66" Height="34" Margin="6,0,0,0"
+                <Button Content="⏹ إنهاء" Width="100" Height="34" Margin="8,0,0,0"
                         Background="#B03A2E" Foreground="White" FontWeight="Bold" BorderThickness="0"
                         Cursor="Hand" Click="OnStopClick" Focusable="False"/>
             </StackPanel>

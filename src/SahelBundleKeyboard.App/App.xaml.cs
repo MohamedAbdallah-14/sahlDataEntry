@@ -63,11 +63,11 @@ public partial class App : Application
             _hotkeys = null;
         }
 
+        // Pause/resume intentionally not exposed in the UI; the engine retains the
+        // capability internally for future use.
         _mainViewModel = new MainViewModel(
             _dataService,
             request => _engine!.TryStartAsync(request),
-            () => _engine!.Pause(),
-            () => _engine!.Resume(),
             () => _engine!.Stop(),
             status => { /* controller updates via property bindings */ });
 
@@ -138,7 +138,6 @@ public partial class App : Application
         var s = _dataService.Document.Settings;
 
         HotkeyCombo start = HotkeyParser.TryParse(s.StartShortcut) ?? HotkeyParser.TryParse("Ctrl+Alt+G")!;
-        HotkeyCombo pause = HotkeyParser.TryParse(s.PauseResumeShortcut) ?? HotkeyParser.TryParse("Ctrl+Alt+P")!;
         HotkeyCombo stop = HotkeyParser.TryParse(s.StopShortcut) ?? HotkeyParser.TryParse("Ctrl+Alt+S")!;
 
         try
@@ -146,7 +145,6 @@ public partial class App : Application
             _hotkeys.Apply(
             [
                 new HotkeyEntry(HotkeyIdsStart, "Start", start),
-                new HotkeyEntry(HotkeyIdsPauseResume, "PauseResume", pause),
                 new HotkeyEntry(HotkeyIdsStop, "Stop", stop)
             ]);
         }
@@ -192,6 +190,5 @@ public partial class App : Application
     }
 
     private const int HotkeyIdsStart = 1;
-    private const int HotkeyIdsPauseResume = 2;
-    private const int HotkeyIdsStop = 3;
+    private const int HotkeyIdsStop = 2;
 }
