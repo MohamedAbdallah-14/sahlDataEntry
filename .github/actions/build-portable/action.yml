@@ -1,0 +1,91 @@
+name: 'Build, test and package portable win-x64'
+description: 'Restore (locked), build Release, test, publish self-contained single-file, assemble portable folder, ZIP + SHA256'
+inputs:
+  version:
+    description: 'Optional version string stamped into the packaged README'
+    required: false
+    default: ''
+outputs:
+  zip_name:
+    description: 'ZIP file name'
+    value: Sahel-Bundle-Keyboard-win-x64.zip
+runs:
+  using: 'composite'
+  steps:
+    - name: Restore (locked mode)
+      shell: pwsh
+      run: dotnet restore SahelBundleKeyboard.sln --locked-mode
+
+    - name: Build (Release, warnings as errors)
+      shell: pwsh
+      run: dotnet build SahelBundleKeyboard.sln -c Release --no-restore --nologo
+
+    - name: Test
+      shell: pwsh
+      run: dotnet test SahelBundleKeyboard.sln -c Release --no-build --nologo --logger "trx;LogFileName=results.trx"
+
+    - name: Publish single-file win-x64
+      shell: pwsh
+      run: >
+        dotnet publish src/SahelBundleKeyboard.App/SahelBundleKeyboard.App.csproj
+        -c Release -r win-x64 --self-contained true
+        -p:PublishSingleFile=true
+        -p:IncludeNativeLibrariesForSelfExtract=true
+        -p:EnableCompressionInSingleFile=false
+        -p:PublishTrimmed=false
+        -o publish
+
+    - name: Assemble portable folder
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        New-Item -ItemType Directory -Force -Path "portable/Data" | Out-Null
+        Copy-Item "publish/SahelBundleKeyboard.exe" "portable/SahelBundleKeyboard.exe"
+
+        $version = "${{ inputs.version }}"
+        if ([string]::IsNullOrWhiteSpace($version)) { $version = "CI build" }
+
+        $readme = @"
+        إدخال حزم سهل — Sahel Bundle Keyboard ($version)
+
+        تشغيل سريع:
+        1) ضع هذا المجلد في مكان قابل للكتابة (مثل المستندات أو سطح المكتب)، وليس داخل Program Files.
+        2) شغّل الملف SahelBundleKeyboard.exe (لا يحتاج تثبيت أي شيء).
+        3) من تبويب «الحزم» أنشئ حزمة وأضف الأصناف، أو استوردها من Excel/CSV.
+        4) من تبويب «الإعدادات» راجع الاختصارات والتأخير.
+        5) اضغط داخل حقل البحث ببرنامج سهل ثم ابدأ بالاختصار العام Ctrl+Alt+G
+           أو بزر «ابدأ» في وحدة التحكم العائمة.
+
+        ملاحظات:
+        - مجلد Data بجانب البرنامج يحتفظ ببياناتك؛ نسخ المجلد = نسخ كل البيانات.
+        - إذا كان برنامج سهل يعمل بصلاحيات المسؤول فشغّل هذا البرنامج أيضاً كمسؤول.
+        - الإيقاف أثناء الإدخال لا يمكنه التراجع عن النص الذي كُتب بالفعل.
+        "@
+        [System.IO.File]::WriteAllText("portable/README.txt", $readme, (New-Object System.Text.UTF8Encoding($true)))
+
+        # Data folder placeholder so the structure is obvious; runtime creates real files.
+        [System.IO.File]::WriteAllText("portable/Data/ضع-ملفات-البيانات-هنا.txt",
+          "سيتم إنشاء ملف data.json تلقائياً هنا عند أول تشغيل.",
+          (New-Object System.Text.UTF8Encoding($true)))
+
+    - name: Create ZIP and SHA256
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        Compress-Archive -Path "portable/*" -DestinationPath "Sahel-Bundle-Keyboard-win-x64.zip" -Force
+        $hash = (Get-FileHash "Sahel-Bundle-Keyboard-win-x64.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+        "$hash  Sahel-Bundle-Keyboard-win-x64.zip" | Out-File "Sahel-Bundle-Keyboard-win-x64.zip.sha256" -Encoding ascii -NoNewline
+
+    - name: Upload ZIP artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Sahel-Bundle-Keyboard-win-x64-zip
+        path: Sahel-Bundle-Keyboard-win-x64.zip
+        if-no-files-found: error
+
+    - name: Upload SHA256 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Sahel-Bundle-Keyboard-win-x64-zip-sha256
+        path: Sahel-Bundle-Keyboard-win-x64.zip.sha256
+        if-no-files-found: error

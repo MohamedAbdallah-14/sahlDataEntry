@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0-windows10.0.19041": {
+      "sahelbundlekeyboard.core": {
+        "type": "Project"
+      },
+      "sahelbundlekeyboard.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "SahelBundleKeyboard.Core": "[1.0.0, )"
+        }
+      },
+      "sahelbundlekeyboard.windows": {
+        "type": "Project",
+        "dependencies": {
+          "SahelBundleKeyboard.Core": "[1.0.0, )"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+<Window x:Class="SahelBundleKeyboard.App.Views.ImportPreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="معاينة الاستيراد"
+        Width="780" Height="540"
+        WindowStartupLocation="CenterOwner"
+        FlowDirection="RightToLeft"
+        FontFamily="Segoe UI" FontSize="13"
+        Background="#F4F6F9">
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" x:Name="SummaryText" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,8"/>
+
+        <DataGrid Grid.Row="1" x:Name="RowsGrid"
+                  AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                  IsReadOnly="True" HeadersVisibility="Column" Background="White"
+                  BorderBrush="#D6DEE8" RowHeaderWidth="0" GridLinesVisibility="Horizontal"
+                  HorizontalGridLinesBrush="#EDF1F6">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="#" Binding="{Binding SourceLineNumber}" Width="46"/>
+                <DataGridTextColumn Header="الكود" Binding="{Binding ProductCode}" Width="130"/>
+                <DataGridTextColumn Header="اسم المنتج" Binding="{Binding ProductName}" Width="*"/>
+                <DataGridTextColumn Header="الكمية" Binding="{Binding QuantityRaw}" Width="80"/>
+                <DataGridTextColumn Header="السعر المخصص" Binding="{Binding PriceRaw}" Width="110"/>
+                <DataGridTextColumn Header="الحالة" Binding="{Binding StatusText}" Width="220"/>
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsValid}" Value="False">
+                            <Setter Property="Background" Value="#FDECEA"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+            <RadioButton x:Name="AppendRadio" Content="إضافة الأصناف إلى الحزمة الحالية"
+                         IsChecked="True" VerticalAlignment="Center"/>
+            <RadioButton x:Name="ReplaceRadio" Content="استبدال أصناف الحزمة بالكامل"
+                         Margin="18,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,12,0,0">
+            <Button x:Name="ConfirmButton" Content="تأكيد الاستيراد" Click="OnConfirmClick" Width="130" Height="32"
+                    Background="#1B7A43" Foreground="White" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"/>
+            <Button Content="إلغاء" Click="OnCancelClick" Width="90" Height="32" Margin="10,0,0,0"
+                    Background="#E4E9EF" BorderThickness="0" Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>
