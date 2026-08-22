@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version/tag, e.g. v1.0.0'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+
+    steps:
+      - name: Validate version input
+        shell: pwsh
+        env:
+          TAG: ${{ env.TAG }}
+        run: |
+          if ("$env:TAG" -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') {
+            Write-Error "Version must match vMAJOR.MINOR.PATCH (e.g. v1.0.0). Got: '$env:TAG'"
+          }
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build, test and package
+        uses: ./.github/actions/build-portable
+        with:
+          version: ${{ env.TAG }}
+
+      # For workflow_dispatch: create the tag on the triggering commit so the
+      # GitHub Release has a real tag. Reruns are idempotent (-f).
+      - name: Ensure tag exists (dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "$env:TAG" ${{ github.sha }}
+          git push origin "refs/tags/$env:TAG" --force
+
+      - name: Create or update GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ env.TAG }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $existing = gh release view "$env:TAG" --json tagName,id 2>$null
+          if ($LASTEXITCODE -eq 0 -and $existing) {
+            Write-Host "Release $env:TAG exists; replacing assets."
+            gh release upload "$env:TAG" `
+              "Sahel-Bundle-Keyboard-win-x64.zip" `
+              "Sahel-Bundle-Keyboard-win-x64.zip.sha256" --clobber
+          }
+          else {
+            gh release create "$env:TAG" `
+              "Sahel-Bundle-Keyboard-win-x64.zip" `
+              "Sahel-Bundle-Keyboard-win-x64.zip.sha256" `
+              --title "إدخال حزم سهل $env:TAG" `
+              --generate-notes
+          }
