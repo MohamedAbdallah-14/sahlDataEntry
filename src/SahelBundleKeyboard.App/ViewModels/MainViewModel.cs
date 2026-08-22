@@ -378,18 +378,30 @@ public sealed class MainViewModel : ObservableObject
         _data.Save();
     }
 
-    public void RemoveSelectedBundle()
+    /// <summary>Removes an explicit bundle instance; never dereferences current selection.</summary>
+    public void RemoveBundle(EditableBundle? bundle)
     {
-        if (SelectedBundle is null)
+        if (bundle is null)
         {
             return;
         }
 
-        Bundles.Remove(SelectedBundle);
-        _ = _data.Document.Bundles.Remove(SelectedBundle.Model);
-        SelectedBundle = Bundles.FirstOrDefault();
+        Bundles.Remove(bundle);
+
+        var modelMatch = _data.Document.Bundles.FirstOrDefault(b => b.Id == bundle.Id);
+        if (modelMatch is not null)
+        {
+            _ = _data.Document.Bundles.Remove(modelMatch);
+        }
+
+        if (ReferenceEquals(_selectedBundle, bundle))
+        {
+            SelectedBundle = Bundles.FirstOrDefault();
+        }
+
         _data.Save();
         OnPropertyChanged(nameof(ItemCountSummary));
+        OnPropertyChanged(nameof(ControllerTitle));
     }
 
     public void RefreshSummaries()
