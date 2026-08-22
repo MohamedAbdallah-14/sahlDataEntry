@@ -9,5 +9,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    <RestorePackagesWithLockFiles>true</RestorePackagesWithLockFiles>
   </PropertyGroup>
 </Project>
